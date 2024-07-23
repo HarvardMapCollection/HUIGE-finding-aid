@@ -7,3 +7,7 @@
 | Technical details on photo-to-map conversion and aerial photograph processing and printing. |  |  |  |
 | … |  |  |  |
 |  |  |  |  |
+
+
+Test
+![Radcliffe Quarterly](https://ids.lib.harvard.edu/ids/iiif/22317515/full/full/0/default.jpg)
