@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Harvard Repositories Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Lato', sans-serif;
+        }
+        #map {
+            height: 100vh; /* Full screen height */
+            width: 100vw; /* Full screen width */
+        }
+        #title {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.6); /* White background with 60% transparency */
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: black;
+            padding: 10px;
+            font-family: 'Lora', serif;
+            z-index: 1000;
+        }
+        .leaflet-popup-content h1 {
+            font-family: 'Lora', serif;
+            font-size: 1.2em; /* Smaller header text */
+        }
+        .leaflet-popup-content {
+            font-size: 1.1em; /* Larger base text */
+        }
+        #credits {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.6); /* White background with 60% transparency */
+            font-family: 'Lato', sans-serif;
+            font-size: 0.8em;
+            color: black;
+            padding: 5px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Harvard University Building Guide to Finding Archival Materials Related to the Institute of Geographical Exploration</div>
+    <div id="map"></div>
+    <div id="credits">
+        Spatial finding aid by Ana Luiza Nicolae and Belle Lipton. <br>
+        Visit the project homepage, <a href="https://mapping.share.library.harvard.edu/posts/nicolae/" target="_blank">A Geographical Cat in the Box.</a> <br>
+        Building data accessed from Harvard University Planning and Design, May 2024.
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Create a list of bright colors and assign specific prominent colors to certain repositories
+        const brightColors = [
+            '#FF0000', '#FF7F00', '#FFFF00', '#007FFF', '#00FF00', '#FF00FF',
+            '#00FFFF', '#0000FF', '#7F00FF', '#FF007F'
+        ];
+        const repositoryColors = {
+            "Harvard Map Collection": '#FF0000', // Prominent red color
+            "Schlesinger Library": '#007FFF' // Prominent blue color
+        };
+        let colorIndex = 0;
+
+        // Helper function to create a custom popup content
+        function createPopupContent(properties) {
+            let popupContent = "";
+
+            // Show repository as header if it exists
+            if (properties.Repository) {
+                popupContent += `<h1>${properties.Repository}</h1>`;
+            }
+
+            // Show building name with custom label
+            if (properties.Primary_Building_Name) {
+                popupContent += `<b>Building</b>: ${properties.Primary_Building_Name}<br>`;
+            }
+
+            // Show address
+            if (properties.Address) {
+                popupContent += `<b>Address</b>: ${properties.Address}<br>`;
+            }
+
+            // Show inventory with custom label and link formatting
+            if (properties.inventory) {
+                popupContent += `<b>Repository Inventory</b>: <a href="${properties.inventory}" target="_blank">Which IGE Materials Are Here?</a><br>`;
+            }
+
+            // Check for custom message if specific fields are null
+            const fields = ['inventory', 'has_materials', 'Repository'];
+            const hasNonNullValue = fields.some(field => properties[field] !== null);
+            if (!hasNonNullValue) {
+                popupContent += 'Do you know of IGE materials here? <a href="mailto:analuiza_nicolae@g.harvard.edu,maps@harvard.edu">Let us know</a>';
+            }
+
+            return popupContent;
+        }
+
+        // Initialize the map and set initial view slightly east
+        var map = L.map('map').setView([42.3755, -71.1178], 17);
+
+        // Load the basemap from CartoDB (Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
+        }).addTo(map);
+
+        // Load the GeoJSON data
+        fetch('harvard_repositories.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('GeoJSON Data:', data);
+
+                // Add GeoJSON data to the map with custom style and popup
+                L.geoJSON(data, {
+                    style: function (feature) {
+                        console.log('Feature Properties:', feature.properties); // Logging feature properties
+                        if (feature.properties.has_materials === "true") {
+                            const repository = feature.properties.Repository;
+                            const color = repositoryColors[repository] || brightColors[colorIndex % brightColors.length];
+                            if (!repositoryColors[repository]) {
+                                colorIndex++;
+                            }
+                            console.log('Color assigned:', color); // Logging the assigned color
+                            return { color: color, fillColor: color, fillOpacity: 0.7 };
+                        }
+                        return { color: "#A9A9A9", fillColor: "#A9A9A9", fillOpacity: 0.5 }; // Gray color for other features
+                    },
+                    onEachFeature: function (feature, layer) {
+                        // Bind popup with custom content
+                        layer.bindPopup(createPopupContent(feature.properties));
+                    }
+                }).addTo(map);
+            })
+            .catch(err => console.error('Error loading GeoJSON:', err));
+    </script>
+</body>
+</html>
