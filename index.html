@@ -50,7 +50,7 @@
     </style>
 </head>
 <body>
-    <div id="title">Harvard University Building Guide to Finding Archival Materials Related to the Institute of Geographical Exploration</div>
+    <div id="title">Building Guide to Finding Archival Materials Related to the Harvard University Institute of Geographical Exploration (HUIGE)</div>
     <div id="map"></div>
     <div id="credits">
         Spatial finding aid by Ana Luiza Nicolae and Belle Lipton. <br>
@@ -92,21 +92,21 @@
 
             // Show inventory with custom label and link formatting
             if (properties.inventory) {
-                popupContent += `<b>Repository Inventory</b>: <a href="${properties.inventory}" target="_blank">Which IGE Materials Are Here?</a><br>`;
+                popupContent += `<b>Repository Inventory</b>: <a href="${properties.inventory}" target="_blank">Which HUIGE Materials Are Here?</a><br>`;
             }
 
             // Check for custom message if specific fields are null
             const fields = ['inventory', 'has_materials', 'Repository'];
             const hasNonNullValue = fields.some(field => properties[field] !== null);
             if (!hasNonNullValue) {
-                popupContent += 'Do you know of IGE materials here? <a href="mailto:analuiza_nicolae@g.harvard.edu,maps@harvard.edu">Let us know</a>';
+                popupContent += 'Do you know of HUIGE materials here? <a href="mailto:analuiza_nicolae@g.harvard.edu,maps@harvard.edu">Let us know</a>';
             }
 
             return popupContent;
         }
 
         // Initialize the map and set initial view slightly east
-        var map = L.map('map').setView([42.3755, -71.1178], 17);
+        var map = L.map('map').setView([42.3757, -71.1182], 17);
 
         // Load the basemap from CartoDB (Positron)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png', {
