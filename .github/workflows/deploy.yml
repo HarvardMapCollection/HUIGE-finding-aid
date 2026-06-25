@@ -1,0 +1,27 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
+        with:
+          server: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          protocol: ftps
+          port: ${{ secrets.SERVER_PORT }}
+          local-dir: ./
+          server-dir: public_html/huige/
+          exclude: |
+            .git/**
+            .github/**
+            README.md
+            .gitattributes
+            .DS_Store
